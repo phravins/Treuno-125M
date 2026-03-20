@@ -1,0 +1,156 @@
+{
+  "title": "Treuno 125M — Inference Health Dashboard",
+  "uid": "treuno-inference",
+  "schemaVersion": 36,
+  "version": 1,
+  "refresh": "30s",
+  "time": {"from": "now-1h", "to": "now"},
+  "panels": [
+    {
+      "id": 1,
+      "title": "Execution Pass Rate by Language (Primary Hallucination Metric)",
+      "type": "timeseries",
+      "gridPos": {"h": 8, "w": 24, "x": 0, "y": 0},
+      "description": "Rolling 1-hour execution pass rate. Alert if any language drops below 60%.",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "min": 0,
+          "max": 1,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"value": null, "color": "red"},
+              {"value": 0.6,  "color": "yellow"},
+              {"value": 0.8,  "color": "green"}
+            ]
+          }
+        }
+      },
+      "targets": [
+        {
+          "expr": "treuno_execution_pass_rate",
+          "legendFormat": "{{language}}"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "AG-Verify Confidence Score Distribution",
+      "type": "histogram",
+      "gridPos": {"h": 6, "w": 12, "x": 0, "y": 8},
+      "description": "Distribution of composite confidence scores. Vertical line at 0.75 = interception threshold.",
+      "targets": [
+        {"expr": "rate(treuno_verify_confidence_bucket[5m])", "legendFormat": "{{le}}"}
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Response Interception Rate",
+      "type": "stat",
+      "gridPos": {"h": 6, "w": 6, "x": 12, "y": 8},
+      "description": "Fraction of responses intercepted by AG-Verify (score < 0.75).",
+      "targets": [
+        {
+          "expr": "rate(treuno_intercepted_total[1h]) / rate(treuno_generation_total[1h])",
+          "legendFormat": "Interception rate"
+        }
+      ],
+      "fieldConfig": {"defaults": {"unit": "percentunit"}}
+    },
+    {
+      "id": 4,
+      "title": "AG-Cache Hit Rate",
+      "type": "stat",
+      "gridPos": {"h": 6, "w": 6, "x": 18, "y": 8},
+      "description": "Fraction of requests served from AG-Cache (~60% expected for repeated queries).",
+      "targets": [
+        {
+          "expr": "rate(treuno_cache_hits_total[1h]) / (rate(treuno_cache_hits_total[1h]) + rate(treuno_cache_misses_total[1h]))",
+          "legendFormat": "Cache hit rate"
+        }
+      ],
+      "fieldConfig": {"defaults": {"unit": "percentunit"}}
+    },
+    {
+      "id": 5,
+      "title": "Generation Latency (p50 / p95 / p99)",
+      "type": "timeseries",
+      "gridPos": {"h": 6, "w": 12, "x": 0, "y": 14},
+      "targets": [
+        {"expr": "histogram_quantile(0.50, rate(treuno_generation_latency_seconds_bucket[5m]))", "legendFormat": "p50"},
+        {"expr": "histogram_quantile(0.95, rate(treuno_generation_latency_seconds_bucket[5m]))", "legendFormat": "p95"},
+        {"expr": "histogram_quantile(0.99, rate(treuno_generation_latency_seconds_bucket[5m]))", "legendFormat": "p99"}
+      ],
+      "fieldConfig": {"defaults": {"unit": "s"}}
+    },
+    {
+      "id": 6,
+      "title": "AG-Retrieve Latency (p95)",
+      "type": "timeseries",
+      "gridPos": {"h": 6, "w": 6, "x": 12, "y": 14},
+      "description": "Target: p95 < 300ms",
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, rate(treuno_retrieval_latency_seconds_bucket[5m]))",
+          "legendFormat": "p95 retrieval"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [{"value": null, "color": "green"}, {"value": 0.3, "color": "red"}]
+          }
+        }
+      }
+    },
+    {
+      "id": 7,
+      "title": "LoRA Updates",
+      "type": "stat",
+      "gridPos": {"h": 6, "w": 6, "x": 18, "y": 14},
+      "targets": [
+        {"expr": "treuno_lora_update_total", "legendFormat": "Total LoRA hot-swaps"},
+        {"expr": "(time() - treuno_lora_update_last_timestamp) / 3600", "legendFormat": "Hours since last update"}
+      ]
+    }
+  ],
+  "annotations": {
+    "list": [
+      {
+        "name": "LoRA Updates",
+        "datasource": "Prometheus",
+        "expr": "changes(treuno_lora_update_total[1m]) > 0",
+        "titleFormat": "LoRA Update Deployed",
+        "enable": true
+      }
+    ]
+  },
+  "alerting": {
+    "alerts": [
+      {
+        "name": "Low Execution Pass Rate",
+        "expr": "treuno_execution_pass_rate < 0.6",
+        "for": "5m",
+        "severity": "critical",
+        "message": "Language {{language}} execution pass rate dropped below 60%"
+      },
+      {
+        "name": "High Interception Rate",
+        "expr": "rate(treuno_intercepted_total[1h]) / rate(treuno_generation_total[1h]) > 0.3",
+        "for": "10m",
+        "severity": "warning",
+        "message": "More than 30% of responses are being intercepted by AG-Verify"
+      },
+      {
+        "name": "AG-Retrieve p95 Latency Breach",
+        "expr": "histogram_quantile(0.95, rate(treuno_retrieval_latency_seconds_bucket[5m])) > 0.3",
+        "for": "5m",
+        "severity": "warning",
+        "message": "AG-Retrieve p95 latency exceeds 300ms target"
+      }
+    ]
+  }
+}
