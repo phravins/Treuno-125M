@@ -1,0 +1,134 @@
+replicaCount: 2
+
+image:
+  repository: treuno/treuno-125m
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 8000
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "120"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "120"
+  hosts:
+    - host: api.treuno.io
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: treuno-tls
+      hosts:
+        - api.treuno.io
+
+resources:
+  requests:
+    memory: "2Gi"
+    cpu: "1000m"
+    nvidia.com/gpu: "1"
+  limits:
+    memory: "8Gi"
+    cpu: "4000m"
+    nvidia.com/gpu: "1"
+
+env:
+  - name: TREUNO_MODEL_PATH
+    value: /models/weights
+  - name: TREUNO_NO_RETRIEVAL
+    value: "0"
+  - name: TREUNO_NO_SANDBOX
+    value: "0"
+  - name: BRAVE_API_KEY
+    valueFrom:
+      secretKeyRef:
+        name: treuno-secrets
+        key: brave-api-key
+  - name: SERPER_API_KEY
+    valueFrom:
+      secretKeyRef:
+        name: treuno-secrets
+        key: serper-api-key
+
+# Model weights served from a PersistentVolume
+volumeMounts:
+  - name: model-weights
+    mountPath: /models
+
+volumes:
+  - name: model-weights
+    persistentVolumeClaim:
+      claimName: treuno-model-pvc
+
+# Redis sidecar for AG-Cache
+redis:
+  enabled: true
+  image: redis:7-alpine
+  port: 6379
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+    limits:
+      memory: "512Mi"
+
+# Rolling update strategy (zero downtime)
+strategy:
+  type: RollingUpdate
+  rollingUpdate:
+    maxSurge: 1
+    maxUnavailable: 0
+
+# Health checks
+livenessProbe:
+  httpGet:
+    path: /health
+    port: 8000
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /health
+    port: 8000
+  initialDelaySeconds: 20
+  periodSeconds: 5
+  failureThreshold: 2
+
+# Horizontal Pod Autoscaler
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 70
+
+# Prometheus ServiceMonitor
+serviceMonitor:
+  enabled: true
+  port: 8000
+  path: /metrics
+  interval: 30s
+
+# Node affinity: prefer GPU nodes
+nodeSelector:
+  accelerator: nvidia-gpu
+
+tolerations:
+  - key: nvidia.com/gpu
+    operator: Exists
+    effect: NoSchedule
+
+# MLflow tracking
+mlflow:
+  enabled: false
+  trackingUri: http://mlflow:5000
+
+# Airflow for AG-Update scheduling
+airflow:
+  enabled: false
+  webserverUrl: http://airflow:8080
+  dagPath: /scripts/pipeline/airflow_dag.py
