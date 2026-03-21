@@ -36,7 +36,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--model-path", default="d:/MODEL/weights",
                    help="Path to model weights directory")
     p.add_argument("--no-retrieval", action="store_true",
-                   help="Disable Antigravity web retrieval")
+                   help="Disable Modelworks web retrieval")
     p.add_argument("--no-sandbox", action="store_true",
                    help="Disable code execution sandbox")
     p.add_argument("--temperature", type=float, default=0.2)
@@ -53,13 +53,13 @@ def print_banner():
         console = Console()
         console.print(Panel.fit(
             "[bold cyan]Treuno 125M[/bold cyan]\n"
-            "[dim]Coding LM · Antigravity Retrieval · Code Sandbox[/dim]\n"
+            "[dim]Coding LM · Modelworks Retrieval · Code Sandbox[/dim]\n"
             "[dim]Type your coding question. Type [bold]/exit[/bold] to quit.[/dim]",
             border_style="cyan",
         ))
     except ImportError:
         print("=" * 55)
-        print("  Treuno 125M — Coding LM with Antigravity + Sandbox")
+        print("  Treuno 125M — Coding LM with Modelworks + Sandbox")
         print("  Type your question. Type /exit to quit.")
         print("=" * 55)
 
@@ -74,7 +74,7 @@ def print_result(result, use_rich: bool = True):
             console = Console()
 
             if result.retrieved_sources:
-                console.print(f"\n[dim]📡 Antigravity: {len(result.retrieved_sources)} sources retrieved[/dim]")
+                console.print(f"\n[dim]📡 Modelworks: {len(result.retrieved_sources)} sources retrieved[/dim]")
 
             console.print(Markdown(result.text))
 
