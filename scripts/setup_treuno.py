@@ -1,11 +1,11 @@
-"""
-Treuno 125M — One-Click Setup & Verification
+﻿"""
+Treuno 125M â€” One-Click Setup & Verification
 ============================================
 The master script that makes Treuno "correctly working" by:
   1. Installing all Python dependencies
   2. Creating the file structure (data, weights, etc.)
   3. Pre-downloading GPT-2 weights/tokenizer for "Immediate Test Mode"
-  4. Verifying every core module (Antigravity, Sandbox, AI Engine)
+  4. Verifying every core module (Modelworks, Sandbox, AI Engine)
 
 Usage:
   python scripts/setup_treuno.py
