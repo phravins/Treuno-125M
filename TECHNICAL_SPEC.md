@@ -1,4 +1,4 @@
-# Treuno 125M — Full Technical Specification
+﻿# Treuno 125M â€” Full Technical Specification
 
 Treuno 125M is a high-efficiency decoder-only Transformer designed for real-time code generation and verification.
 
@@ -7,7 +7,7 @@ Treuno 125M is a high-efficiency decoder-only Transformer designed for real-time
 - **Parameters**: 125M (122.8M non-embedding)
 - **Layers**: 12
 - **Hidden Dimension**: 768
-- **FFN Dimension**: 3072 (using SwiGLU: `W1·x ⊙ SiLU(W2·x) · W3`)
+- **FFN Dimension**: 3072 (using SwiGLU: `W1Â·x âŠ™ SiLU(W2Â·x) Â· W3`)
 - **Heads**: 12 Query / 4 Key-Value (Grouped-Query Attention)
 - **Context Window**: 8192 tokens
 - **Positional Encoding**: Rotary Positional Embeddings (RoPE)
@@ -45,8 +45,8 @@ The model's knowledge is augmented by a real-time retrieval system consisting of
 
 ### 6-Phase Training
 1.  **Phase 1: Pretraining**: 100B tokens (GitHub / The Stack v2).
-2.  **Phase 2: Context Extension**: 4k → 8k context using RoPE scaling.
-3.  **Phase 3: RAG-Aware SFT**: Taught to read and cite retrieved context.
+2.  **Phase 2: Context Extension**: 4k â†’ 8k context using RoPE scaling.
+3.  **Phase 3: RModel-Aware SFT**: Taught to read and cite retrieved context.
 4.  **Phase 5: Execution DPO**: Preference tuning using sandbox results.
 5.  **Phase 5: Uncertainty DPO**: Penalizes hallucinations.
 6.  **Phase 6: Weekly LoRA**: Rank-16 LoRA hot-swapping for continuous learning.
