@@ -1,22 +1,22 @@
 """
-Treuno — AG-Cache
+Treuno — Model-Cache
 ==================
 
 Semantic response cache built on Redis 7.
-Instead of exact string matching, AG-Cache compares incoming query embeddings
+Instead of exact string matching, Model-Cache compares incoming query embeddings
 against previously answered queries using cosine similarity.
 
 Behaviour:
   - Incoming query → embed → 384-dim vector
   - Scan recent cache entries for closest match (cosine similarity)
   - If similarity >= 0.92 → return cached verified response immediately
-  - Otherwise → full pipeline (AG-Retrieve → model → AG-Execute → AG-Verify)
+  - Otherwise → full pipeline (Model-Retrieve → model → Model-Execute → Model-Verify)
   - Results stored in Redis with TTL: 24h for web, 7d for doc-sourced answers
 
 Expected latency reduction: ~60% for repeated or near-identical questions.
 
 Redis schema:
-  Key:   ag:cache:{hash}
+  Key:   model:cache:{hash}
   Value: JSON {
     "query":     original query string,
     "embedding": list[float] (384-dim),
@@ -25,7 +25,7 @@ Redis schema:
     "ttl":       seconds,
   }
 
-  Index: ag:cache:index (Redis Set of all cache keys for scanning)
+  Index: model:cache:index (Redis Set of all cache keys for scanning)
 """
 
 from __future__ import annotations
@@ -42,8 +42,8 @@ logger = logging.getLogger(__name__)
 SIMILARITY_THRESHOLD = 0.92     # Per spec: 0.92 → cache hit
 DEFAULT_TTL = 86400             # 24h for open web answers
 DOC_TTL = 604800                # 7d for documentation-sourced answers
-INDEX_KEY = "ag:cache:index"
-KEY_PREFIX = "ag:cache:"
+INDEX_KEY = "model:cache:index"
+KEY_PREFIX = "model:cache:"
 
 
 @dataclass
@@ -58,9 +58,9 @@ class CacheEntry:
     source_tier: str = "web"    # determines TTL on write
 
 
-class AGCache:
+class ModelCache:
     """
-    AG-Cache: Redis 7 semantic query cache.
+    Model-Cache: Redis 7 semantic query cache.
 
     Architecture:
       - All cache entries stored in Redis as JSON blobs
@@ -69,7 +69,7 @@ class AGCache:
       - For larger deployments: upgrade to Redis Vector Similarity Search (VSS)
 
     Usage:
-        cache = AGCache(redis_url="redis://localhost:6379")
+        cache = ModelCache(redis_url="redis://localhost:6379")
         hit = cache.lookup("how to use asyncio in python")
         if hit:
             return hit.response_text
@@ -104,7 +104,7 @@ class AGCache:
             query_emb = self._embed(query)
             return self._scan_and_match(query_emb)
         except Exception as e:
-            logger.warning(f"AG-Cache lookup failed: {e}")
+            logger.warning(f"Model-Cache lookup failed: {e}")
             return None
 
     def store(
@@ -145,7 +145,7 @@ class AGCache:
             logger.debug(f"Cached response for '{query[:40]}' (TTL={ttl}s, key={entry_key})")
             return True
         except Exception as e:
-            logger.warning(f"AG-Cache store failed: {e}")
+            logger.warning(f"Model-Cache store failed: {e}")
             return False
 
     def invalidate(self, query: str) -> None:
@@ -157,7 +157,7 @@ class AGCache:
         self._redis.srem(INDEX_KEY, entry_key)
 
     def flush(self) -> int:
-        """Clear all AG-Cache entries. Returns number deleted."""
+        """Clear all Model-Cache entries. Returns number deleted."""
         if not self._connect():
             return 0
         keys = self._redis.smembers(INDEX_KEY)
@@ -192,10 +192,10 @@ class AGCache:
             import redis
             self._redis = redis.from_url(self.redis_url, decode_responses=True, socket_timeout=1)
             self._redis.ping()
-            logger.info(f"AG-Cache connected to Redis at {self.redis_url}")
+            logger.info(f"Model-Cache connected to Redis at {self.redis_url}")
             return True
         except Exception as e:
-            logger.warning(f"AG-Cache Redis unavailable ({e}). Cache disabled.")
+            logger.warning(f"Model-Cache Redis unavailable ({e}). Cache disabled.")
             self._redis = None
             return False
 
@@ -242,7 +242,7 @@ class AGCache:
 
         if best_sim >= self.threshold and best_entry is not None:
             logger.info(
-                f"AG-Cache HIT (sim={best_sim:.3f} >= {self.threshold}) "
+                f"Model-Cache HIT (sim={best_sim:.3f} >= {self.threshold}) "
                 f"for query: '{best_entry.get('query','')[:40]}'"
             )
             return CacheEntry(
@@ -274,7 +274,7 @@ class AGCache:
     def __repr__(self) -> str:
         connected = self._redis is not None
         return (
-            f"AGCache(redis={self.redis_url}, "
+            f"ModelCache(redis={self.redis_url}, "
             f"threshold={self.threshold}, "
             f"connected={connected})"
         )
