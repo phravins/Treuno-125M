@@ -1,13 +1,13 @@
-"""
-Treuno 125M —  RAG Prompt Builder
+﻿"""
+Treuno 125M â€”  RAG Prompt Builder
 Assembles the final enriched prompt by injecting retrieved document chunks
 as system context before the user's coding question.
 
 This is the bridge between the retriever/indexer and the model:
-    query → retrieve → build_rag_prompt → TreunoModel
+    query â†’ retrieve â†’ build_rag_prompt â†’ TreunoModel
 
 Format:
-    [SYSTEM CONTEXT — retrieved from live web]
+    [SYSTEM CONTEXT â€” retrieved from live web]
     Source: {url}
     ---
     {chunk_text}
@@ -42,7 +42,7 @@ def build_rag_prompt(
     max_docs: int = 3,
 ) -> str:
     """
-    Build a RAG-enriched prompt by prepending retrieved document chunks.
+    Build a RModel-enriched prompt by prepending retrieved document chunks.
 
     Args:
         query:             The user's original query (used for header)
@@ -84,7 +84,7 @@ def build_rag_prompt(
     context_block = "\n\n".join(context_parts)
 
     prompt = (
-        f"[ANTIGRAVITY LIVE CONTEXT — Retrieved for: \"{query}\"]\n"
+        f"[Modelworks LIVE CONTEXT â€” Retrieved for: \"{query}\"]\n"
         f"{context_block}\n"
         f"[END CONTEXT]\n\n"
         f"{base_prompt}"
