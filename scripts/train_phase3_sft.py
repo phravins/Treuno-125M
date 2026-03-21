@@ -1,11 +1,11 @@
-"""
-Treuno 125M — Phase 3: RAG-Aware Supervised Fine-Tuning
+﻿"""
+Treuno 125M â€” Phase 3: RModel-Aware Supervised Fine-Tuning
 =========================================================
-Teach the model to read and cite retrieved source documents —
-using the EXACT Antigravity prompt template it will see at inference time.
+Teach the model to read and cite retrieved source documents â€”
+using the EXACT Modelworks prompt template it will see at inference time.
 
 Data: 20,000 instruction examples formatted as:
-    [ANTIGRAVITY LIVE CONTEXT — Retrieved for: "{query}"]
+    [Modelworks LIVE CONTEXT â€” Retrieved for: "{query}"]
     Source: {url}
     ----------------------------------------
     {retrieved_text}
@@ -34,7 +34,7 @@ logger = logging.getLogger(__name__)
 RESPONSE_TEMPLATE = "### Response:"
 
 RAG_PROMPT_TEMPLATE = """\
-[ANTIGRAVITY LIVE CONTEXT — Retrieved for: "{query}"]
+[Modelworks LIVE CONTEXT â€” Retrieved for: "{query}"]
 Source: {url}
 ----------------------------------------
 {context}
@@ -48,7 +48,7 @@ Source: {url}
 
 class RAGSFTDataset:
     """
-    Dataset for RAG-aware SFT from a JSONL file.
+    Dataset for RModel-aware SFT from a JSONL file.
 
     Each line: {
         "query":       "how to parse JSON in Python",
@@ -159,11 +159,11 @@ def train(args):
     )
     trainer.train()
     trainer.save_model(args.output_dir)
-    logger.info(f"Phase 3 (RAG-SFT) complete. Saved to {args.output_dir}")
+    logger.info(f"Phase 3 (RModel-SFT) complete. Saved to {args.output_dir}")
 
 
 def main():
-    p = argparse.ArgumentParser(description="Treuno Phase 3: RAG-Aware SFT")
+    p = argparse.ArgumentParser(description="Treuno Phase 3: RModel-Aware SFT")
     p.add_argument("--phase2-checkpoint", default="d:/MODEL/checkpoints/phase2")
     p.add_argument("--data-path",   default="d:/MODEL/data/rag_sft_20k.jsonl")
     p.add_argument("--output-dir",  default="d:/MODEL/checkpoints/phase3")
