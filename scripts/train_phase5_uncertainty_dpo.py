@@ -1,5 +1,5 @@
-"""
-Treuno 125M — Phase 5: Uncertainty DPO
+﻿"""
+Treuno 125M â€” Phase 5: Uncertainty DPO
 ========================================
 Train the model to say "I don't know" rather than hallucinate confidently.
 
@@ -8,7 +8,7 @@ Train the model to say "I don't know" rather than hallucinate confidently.
   rejected: Response that makes up an answer or invents an API that doesn't exist
 
 This phase is what makes Treuno's hallucination behaviour qualitatively different
-from standard LLMs — it has an explicit incentive to abstain.
+from standard LLMs â€” it has an explicit incentive to abstain.
 
 DPO config: same as Phase 4 (beta=0.1).
 
@@ -24,7 +24,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 logger = logging.getLogger(__name__)
 
-# ── Data validation ───────────────────────────────────────────────────────────
+# â”€â”€ Data validation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 UNCERTAINTY_MARKERS = [
     "i'm not sure", "i cannot verify", "i'm uncertain",
