@@ -1,6 +1,6 @@
 # Treuno 125M — Canonical Implementation
 
-Treuno 125M is a coding-specialized language model powered by the **Antigravity** RAG framework and a secure **Code Execution Sandbox**.
+Treuno 125M is a coding-specialized language model powered by the RAG framework and a secure **Code Execution Sandbox**.
 
 ## Architecture Overview
 
