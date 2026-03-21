@@ -1,5 +1,5 @@
 """
-Treuno — AG-Retrieve
+Treuno — Model-Retrieve
 =====================
 
 Pipeline per query:
@@ -105,9 +105,9 @@ class RetrievalResult:
     cache_hit: bool = False
 
 
-class AGRetrieve:
+class ModelRetrieve:
     """
-    Antigravity AG-Retrieve: hybrid semantic + keyword retrieval with reranking.
+    Modelworks Model-Retrieve: hybrid semantic + keyword retrieval with reranking.
 
     Embed → (FAISS IVF-PQ ∥ BM25) → RRF merge → cross-encoder rerank → top-3
     """
@@ -120,7 +120,7 @@ class AGRetrieve:
         rerank_model: str = "cross-encoder/ms-marco-MiniLM-L-6-v2",
         top_k_retrieve: int = 10,
         top_k_final: int = 3,
-        cache: Optional["AGCache"] = None,
+        cache: Optional["ModelCache"] = None,
     ):
         import os
         self.brave_api_key = brave_api_key or os.environ.get("BRAVE_API_KEY")
@@ -166,7 +166,7 @@ class AGRetrieve:
         final = reranked[:self.top_k_final]
         latency = (time.perf_counter() - t0) * 1000
         if latency > 300:
-            logger.warning(f"AG-Retrieve p95 miss: {latency:.0f}ms for '{query[:40]}'")
+            logger.warning(f"Model-Retrieve p95 miss: {latency:.0f}ms for '{query[:40]}'")
 
         return RetrievalResult(
             query=query,
