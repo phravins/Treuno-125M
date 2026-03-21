@@ -25,7 +25,7 @@ ROOT = Path("d:/MODEL")
 SUBDIRS = [
     "data/raw", "data/deduped", "data/quality_filtered", "data/tokenized",
     "weights/gpt2", "weights/lora_candidate", "configs", "scripts/pipeline",
-    "inference", "monitoring", "helm", "sandbox", "antigravity", "model"
+    "inference", "monitoring", "helm", "sandbox", "Modelworks", "model"
 ]
 
 def run(cmd, desc):
