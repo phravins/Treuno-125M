@@ -1,17 +1,17 @@
-"""
-Treuno 125M — Phase 4: Execution-Driven DPO
+﻿"""
+Treuno 125M â€” Phase 4: Execution-Driven DPO
 =============================================
 Reward code that runs. Penalize code that crashes.
 
-FULLY AUTOMATED label generation — no human annotators required:
+FULLY AUTOMATED label generation â€” no human annotators required:
   1. For each of 50,000 coding prompts, sample 2 completions from Phase 3 model
-  2. Run both through AG-Execute (Docker+gVisor, 5s timeout)
+  2. Run both through Model-Execute (Docker+gVisor, 5s timeout)
   3. chosen  = completion whose code passed execution
      rejected = completion whose code failed
   4. Discard pairs where both pass or both fail
 
 DPO config:
-  Beta:    0.1  (per spec — controls deviation from reference policy)
+  Beta:    0.1  (per spec â€” controls deviation from reference policy)
   LR:      5e-5
   Epochs:  1
 
@@ -38,7 +38,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(mess
 logger = logging.getLogger(__name__)
 
 
-# ── Step 1: Automatic pair generation ────────────────────────────────────────
+# â”€â”€ Step 1: Automatic pair generation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def generate_preference_pairs(args):
     """
@@ -78,7 +78,7 @@ def generate_preference_pairs(args):
                 elif res_b.success and not res_a.success:
                     chosen, rejected = out_b, out_a
                 else:
-                    continue   # Both pass or both fail → discard
+                    continue   # Both pass or both fail â†’ discard
 
                 fout.write(json.dumps({
                     "prompt": prompt,
@@ -92,10 +92,10 @@ def generate_preference_pairs(args):
             except Exception as e:
                 logger.warning(f"  Pair generation failed for prompt {i}: {e}")
 
-    logger.info(f"Generated {written} preference pairs → {args.pairs_output}")
+    logger.info(f"Generated {written} preference pairs â†’ {args.pairs_output}")
 
 
-# ── Step 2: DPO training ──────────────────────────────────────────────────────
+# â”€â”€ Step 2: DPO training â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class DPOPairsDataset:
     """JSONL dataset of {prompt, chosen, rejected} triples for DPO training."""
