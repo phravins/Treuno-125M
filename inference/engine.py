@@ -1,10 +1,10 @@
-"""
-Treuno 125M — Inference Engine
+﻿"""
+Treuno 125M â€” Inference Engine
 The orchestrator that brings all three systems together:
 
-  1. Antigravity Retrieval  → enrich prompt with live web docs
-  2. TreunoModel            → generate code
-  3. Code Sandbox           → verify and self-correct
+  1. Modelworks Retrieval  â†’ enrich prompt with live web docs
+  2. TreunoModel            â†’ generate code
+  3. Code Sandbox           â†’ verify and self-correct
 
 Usage:
     engine = TreunoEngine.from_pretrained("d:/MODEL/weights")
@@ -57,10 +57,10 @@ class TreunoEngine:
     """
     Full Treuno inference pipeline:
 
-        query → [Modelworks] → enriched prompt
-              → [TreunoModel]  → raw output
-              → [Sandbox]      → verified code
-              → GenerationResult
+        query â†’ [Modelworks] â†’ enriched prompt
+              â†’ [TreunoModel]  â†’ raw output
+              â†’ [Sandbox]      â†’ verified code
+              â†’ GenerationResult
     """
 
     def __init__(
@@ -118,7 +118,7 @@ class TreunoEngine:
         retrieved_sources = []
         enriched_prompt = prompt
 
-        # ── Step 1: Modelworks Retrieval ────────────────────────────────────
+        # â”€â”€ Step 1: Modelworks Retrieval â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         if do_retrieval and self.retriever:
             try:
                 logger.info("Modelworks: searching...")
@@ -132,14 +132,14 @@ class TreunoEngine:
             except Exception as e:
                 logger.warning(f"Modelworks retrieval failed: {e}. Proceeding without.")
 
-        # ── Step 2: Generate ─────────────────────────────────────────────────
+        # â”€â”€ Step 2: Generate â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         raw_output = self._run_model(enriched_prompt, max_new_tokens, temperature, top_p)
 
-        # ── Step 3: Extract code block ───────────────────────────────────────
+        # â”€â”€ Step 3: Extract code block â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         detected_lang = language or self._detect_language(raw_output)
         code = CodeExecutor.extract_code_block(raw_output, detected_lang)
 
-        # ── Step 4: Sandbox verification ─────────────────────────────────────
+        # â”€â”€ Step 4: Sandbox verification â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         verification = None
         if do_sandbox and code and detected_lang:
             def _generate_fn(correction_prompt: str) -> str:
@@ -210,7 +210,7 @@ class TreunoEngine:
         config = TreunoConfig.treuno_125m()
         device = device or ("cuda" if torch.cuda.is_available() else "cpu")
 
-        # ── Step 1: Handle model loading ─────────────────────────────────────
+        # â”€â”€ Step 1: Handle model loading â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         weights_path = f"{model_path}/model.pt"
         if os.path.isfile(weights_path):
             # Case 1: Local Treuno weights
@@ -228,7 +228,7 @@ class TreunoEngine:
             logger.warning(f"No weights at {weights_path}. Using random init (dev mode).")
             model = TreunoModel(config)
 
-        # ── Step 2: Handle tokenizer ─────────────────────────────────────────
+        # â”€â”€ Step 2: Handle tokenizer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         tokenizer_path = f"{model_path}/tokenizer" if os.path.isdir(f"{model_path}/tokenizer") else model_path
         tokenizer = TreunoTokenizer.from_pretrained(tokenizer_path, config=config)
 
