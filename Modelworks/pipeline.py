@@ -1,8 +1,6 @@
 """
-Treuno — Antigravity Pipeline Orchestrator
+Treuno — Pipeline Orchestrator
 ===========================================
-Ties all 5 Antigravity components into a single call interface.
-
 Full inference call path:
   1. AG-Cache.lookup(query) → if hit (sim >= 0.92) → return cached response
   2. AG-Retrieve(query)     → hybrid search → rerank → top-3 passages

@@ -1,7 +1,6 @@
 """
 Treuno — AG-Cache
 ==================
-Component 4 of the Antigravity framework.
 
 Semantic response cache built on Redis 7.
 Instead of exact string matching, AG-Cache compares incoming query embeddings

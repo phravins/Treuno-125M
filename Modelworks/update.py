@@ -1,7 +1,6 @@
 """
 Treuno — AG-Update
 ===================
-Component 5 of the Antigravity framework.
 
 The continuous learning pipeline that keeps Treuno current without full retraining.
 

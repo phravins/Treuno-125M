@@ -1,7 +1,6 @@
 """
 Treuno — AG-Verify
 ===================
-Component 3 of the Antigravity framework.
 
 Evaluates every response before it reaches the user using a
 composite confidence score across three dimensions:

@@ -1,5 +1,5 @@
 """
-Treuno 125M — Antigravity: RAG Prompt Builder
+Treuno 125M —  RAG Prompt Builder
 Assembles the final enriched prompt by injecting retrieved document chunks
 as system context before the user's coding question.
 

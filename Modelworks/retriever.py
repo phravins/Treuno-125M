@@ -1,5 +1,5 @@
 """
-Treuno 125M — Antigravity: Web Retriever
+Treuno 125M —  Web Retriever
 Real-time web search to ground every inference call with live documentation.
 
 Primary backend: DuckDuckGo (no API key required)

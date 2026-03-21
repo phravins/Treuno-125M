@@ -1,7 +1,6 @@
 """
 Treuno — AG-Retrieve
 =====================
-Component 1 of the Antigravity framework.
 
 Pipeline per query:
   1. Embed query → 384-dim vector (all-MiniLM-L6-v2)

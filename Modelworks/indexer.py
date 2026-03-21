@@ -1,5 +1,5 @@
 """
-Treuno 125M — Antigravity: Document Indexer
+Treuno 125M —  Document Indexer
 Chunks retrieved documents, embeds them with sentence-transformers,
 and stores them in a FAISS index for vector similarity search.
 
