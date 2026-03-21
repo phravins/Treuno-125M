@@ -1,5 +1,5 @@
 """
-Treuno — AG-Update
+Treuno — Model-Update
 ===================
 
 The continuous learning pipeline that keeps Treuno current without full retraining.
@@ -13,7 +13,7 @@ Two-track update system:
       Docs/MDN:        re-indexed every 7 days
       Open web:        re-indexed every 24 hours
     New documents are embedded and added to the FAISS IVF-PQ index.
-    The AG-Cache is selectively invalidated when a new version of a
+    The Model-Cache is selectively invalidated when a new version of a
     frequently-retrieved document is detected.
 
   Track B — LoRA Weight Update (runs weekly via cron)
@@ -74,9 +74,9 @@ class TrainingExample:
     timestamp: float
 
 
-class AGUpdate:
+class ModelUpdate:
     """
-    AG-Update: continuous two-track update pipeline.
+    Model-Update: continuous two-track update pipeline.
 
     Track A: source index refresh (background thread, per-TTL schedule)
     Track B: weekly LoRA fine-tune (cron-triggered, 2h on 2x A100)
@@ -84,7 +84,7 @@ class AGUpdate:
 
     def __init__(
         self,
-        retriever=None,              # AGRetrieve instance
+        retriever=None,              # ModelRetrieve instance
         examples_db_path: str = "d:/MODEL/data/update_buffer.jsonl",
         weights_dir: str = "d:/MODEL/weights",
         min_examples_for_lora: int = 500,
@@ -108,23 +108,23 @@ class AGUpdate:
         interval_seconds: how often to check all tiers (default: 1 hour)
         """
         if self._running:
-            logger.warning("AG-Update background refresh already running.")
+            logger.warning("Model-Update background refresh already running.")
             return
         self._running = True
         self._refresh_thread = threading.Thread(
             target=self._refresh_loop,
             args=(interval_seconds,),
             daemon=True,
-            name="ag-update-refresh",
+            name="model-update-refresh",
         )
         self._refresh_thread.start()
-        logger.info(f"AG-Update background refresh started (every {interval_seconds}s).")
+        logger.info(f"Model-Update background refresh started (every {interval_seconds}s).")
 
     def stop_background_refresh(self) -> None:
         self._running = False
         if self._refresh_thread:
             self._refresh_thread.join(timeout=5)
-        logger.info("AG-Update background refresh stopped.")
+        logger.info("Model-Update background refresh stopped.")
 
     def _refresh_loop(self, interval: int) -> None:
         """Main refresh loop running in background thread."""
@@ -146,7 +146,7 @@ class AGUpdate:
             job_type="source_refresh",
             triggered_at=time.time(),
         )
-        logger.info("AG-Update: running source index refresh...")
+        logger.info("Model-Update: running source index refresh...")
         new_docs = 0
 
         # In production: crawl each source tier per its TTL schedule.
@@ -248,7 +248,7 @@ class AGUpdate:
             triggered_at=time.time(),
         )
         n = self.count_buffered_examples()
-        logger.info(f"AG-Update LoRA: {n} examples in buffer (min={self.min_examples_for_lora})")
+        logger.info(f"Model-Update LoRA: {n} examples in buffer (min={self.min_examples_for_lora})")
 
         if n < self.min_examples_for_lora:
             job.success = False
@@ -258,14 +258,14 @@ class AGUpdate:
             return job
 
         if dry_run:
-            logger.info("AG-Update LoRA: dry_run=True, skipping actual training.")
+            logger.info("Model-Update LoRA: dry_run=True, skipping actual training.")
             job.success = True
             job.completed_at = time.time()
             job.details = {"dry_run": True, "examples": n}
             return job
 
         try:
-            logger.info("AG-Update LoRA: launching training...")
+            logger.info("Model-Update LoRA: launching training...")
             import subprocess, sys
             cmd = [
                 sys.executable,
@@ -284,7 +284,7 @@ class AGUpdate:
                 if swapped:
                     # Clear the training buffer after successful update
                     self.examples_db_path.unlink(missing_ok=True)
-                    logger.info("AG-Update: new weights deployed, buffer cleared.")
+                    logger.info("Model-Update: new weights deployed, buffer cleared.")
             else:
                 job.success = False
                 job.details = {"error": result.stderr[-500:]}
@@ -323,7 +323,7 @@ class AGUpdate:
     def __repr__(self) -> str:
         n = self.count_buffered_examples()
         return (
-            f"AGUpdate(buffer_examples={n}, "
+            f"ModelUpdate(buffer_examples={n}, "
             f"min_for_lora={self.min_examples_for_lora}, "
             f"running={self._running})"
         )
