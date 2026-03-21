@@ -1,12 +1,12 @@
-"""
-Treuno 125M — FastAPI REST Server
+﻿"""
+Treuno 125M â€” FastAPI REST Server
 Exposes the full Treuno pipeline (retrieval + model + sandbox) as a REST API.
 
 Endpoints:
-    GET  /health                 → liveness check
-    POST /generate               → generate code with verification
-    POST /generate/fim           → fill-in-the-middle completion
-    GET  /info                   → model config info
+    GET  /health                 â†’ liveness check
+    POST /generate               â†’ generate code with verification
+    POST /generate/fim           â†’ fill-in-the-middle completion
+    GET  /info                   â†’ model config info
 
 Usage:
     python inference/api.py
@@ -43,7 +43,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ── Lazy engine init ──────────────────────────────────────────────────────────
+# â”€â”€ Lazy engine init â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 _engine = None
 
 def get_engine():
@@ -61,7 +61,7 @@ def get_engine():
     return _engine
 
 
-# ── Request / Response schemas ────────────────────────────────────────────────
+# â”€â”€ Request / Response schemas â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class GenerateRequest(BaseModel):
     prompt: str = Field(..., description="Coding question or instruction", min_length=1)
@@ -69,7 +69,7 @@ class GenerateRequest(BaseModel):
     max_new_tokens: int = Field(512, ge=1, le=2048)
     temperature: float = Field(0.2, ge=0.0, le=2.0)
     top_p: float = Field(0.95, ge=0.0, le=1.0)
-    use_retrieval: bool = Field(True, description="Use Antigravity web retrieval")
+    use_retrieval: bool = Field(True, description="Use Modelworks web retrieval")
     use_sandbox: bool = Field(True, description="Verify code in sandbox")
     verify_retries: int = Field(3, ge=1, le=5)
 
@@ -97,7 +97,7 @@ class FIMResponse(BaseModel):
     language: Optional[str]
 
 
-# ── Endpoints ─────────────────────────────────────────────────────────────────
+# â”€â”€ Endpoints â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 @app.get("/health")
 async def health():
@@ -182,6 +182,6 @@ async def generate_fim(req: FIMRequest):
 
 if __name__ == "__main__":
     import uvicorn
-    # Pass the app object directly — not "inference.api:app" — so uvicorn
+    # Pass the app object directly â€” not "inference.api:app" â€” so uvicorn
     # doesn't try to re-import the module from scratch with an empty sys.path.
     uvicorn.run(app, host="0.0.0.0", port=8000, log_level="info")
