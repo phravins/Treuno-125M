@@ -1,12 +1,12 @@
-"""
-Treuno 125M —  Web Retriever
+﻿"""
+Treuno 125M â€”  Web Retriever
 Real-time web search to ground every inference call with live documentation.
 
 Primary backend: DuckDuckGo (no API key required)
 Optional backend: Serper.dev (higher quality, requires SERPER_API_KEY env var)
 
 Usage:
-    retriever = AntigravityRetriever(max_results=5)
+    retriever = ModelworksRetriever(max_results=5)
     results = retriever.search("python requests library POST example")
     for r in results:
         print(r.title, r.url, r.snippet[:200])
@@ -28,12 +28,12 @@ class SearchResult:
     url: str
     snippet: str
     source: str = "duckduckgo"    # or "serper"
-    score: float = 1.0            # relevance score (0–1)
+    score: float = 1.0            # relevance score (0â€“1)
 
 
-class AntigravityRetriever:
+class ModelworksRetriever:
     """
-    Real-time web retriever for the Antigravity system.
+    Real-time web retriever for the Modelworks system.
 
     At every Treuno inference call:
       1. Parse the query for library / API names
@@ -88,7 +88,7 @@ class AntigravityRetriever:
             results = self.search(f"{query} documentation example")
         return results
 
-    # ── DuckDuckGo backend ───────────────────────────────────────────────────
+    # â”€â”€ DuckDuckGo backend â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     def _ddg_search(self, query: str, k: int) -> List[SearchResult]:
         """Search using duckduckgo-search library (no API key needed)."""
@@ -117,7 +117,7 @@ class AntigravityRetriever:
             logger.error(f"DuckDuckGo search failed: {e}")
             return []
 
-    # ── Serper backend ───────────────────────────────────────────────────────
+    # â”€â”€ Serper backend â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     def _serper_search(self, query: str, k: int) -> List[SearchResult]:
         """Search using Serper.dev API (requires SERPER_API_KEY)."""
@@ -145,7 +145,7 @@ class AntigravityRetriever:
             ))
         return results
 
-    # ── Snippet fetching ─────────────────────────────────────────────────────
+    # â”€â”€ Snippet fetching â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     def fetch_page_text(self, url: str, max_chars: int = 4000) -> str:
         """
@@ -156,7 +156,7 @@ class AntigravityRetriever:
             import requests
             from bs4 import BeautifulSoup
             resp = requests.get(url, timeout=self.timeout, headers={
-                "User-Agent": "Mozilla/5.0 (Treuno/0.1 AntigravityBot)"
+                "User-Agent": "Mozilla/5.0 (Treuno/0.1 ModelworksBot)"
             })
             resp.raise_for_status()
             soup = BeautifulSoup(resp.text, "lxml")
@@ -172,4 +172,4 @@ class AntigravityRetriever:
 
     def __repr__(self) -> str:
         backend = "serper" if self.serper_api_key else "duckduckgo"
-        return f"AntigravityRetriever(backend={backend}, max_results={self.max_results})"
+        return f"ModelworksRetriever(backend={backend}, max_results={self.max_results})"
