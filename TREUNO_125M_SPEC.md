@@ -130,7 +130,7 @@ At training time, 50% of sequences are presented in FIM format, chosen randomly.
 
 ---
 
-## Antigravity Retrieval System
+## Modelworks Retrieval System
 
 At every inference call:
 
@@ -156,7 +156,7 @@ At every inference call:
 
 | Version | Target | Notes                                   |
 |---------|--------|-----------------------------------------|
-| 0.1     | Now    | Core model + Antigravity + Sandbox      |
+| 0.1     | Now    | Core model + Modelworks + Sandbox       |
 | 0.2     | +1 wk  | First weekly LoRA update                |
 | 0.3     | +1 mo  | GPTQ int4 quantization                  |
 | 1.0     | +3 mo  | Full HumanEval benchmark results        |
