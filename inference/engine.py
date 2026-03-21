@@ -24,8 +24,8 @@ from typing import Optional, List
 from model.config import TreunoConfig
 from model.transformer import TreunoModel
 from model.tokenizer import TreunoTokenizer
-from antigravity.retriever import AntigravityRetriever
-from antigravity.rag import build_rag_prompt
+from Modelworks.retriever import ModelRetriever
+from Modelworks.rag import build_rag_prompt
 from sandbox.executor import CodeExecutor
 from sandbox.verifier import CodeVerifier, VerificationResult
 
@@ -57,7 +57,7 @@ class TreunoEngine:
     """
     Full Treuno inference pipeline:
 
-        query → [Antigravity] → enriched prompt
+        query → [Modelworks] → enriched prompt
               → [TreunoModel]  → raw output
               → [Sandbox]      → verified code
               → GenerationResult
@@ -70,7 +70,7 @@ class TreunoEngine:
         config: TreunoConfig,
         use_retrieval: bool = True,
         use_sandbox: bool = True,
-        retriever: Optional[AntigravityRetriever] = None,
+        retriever: Optional[ModelRetriever] = None,
         device: Optional[str] = None,
     ):
         self.model = model
@@ -78,7 +78,7 @@ class TreunoEngine:
         self.config = config
         self.use_retrieval = use_retrieval
         self.use_sandbox = use_sandbox
-        self.retriever = retriever or (AntigravityRetriever() if use_retrieval else None)
+        self.retriever = retriever or (ModelRetriever() if use_retrieval else None)
         self.executor = CodeExecutor()
         self.verifier = CodeVerifier()
         self.device = device or ("cuda" if torch.cuda.is_available() else "cpu")
@@ -118,19 +118,19 @@ class TreunoEngine:
         retrieved_sources = []
         enriched_prompt = prompt
 
-        # ── Step 1: Antigravity Retrieval ────────────────────────────────────
+        # ── Step 1: Modelworks Retrieval ────────────────────────────────────
         if do_retrieval and self.retriever:
             try:
-                logger.info("Antigravity: searching...")
+                logger.info("Modelworks: searching...")
                 results = self.retriever.search_for_code_query(prompt)
                 if results:
                     docs = [{"text": r.snippet, "url": r.url, "title": r.title}
                             for r in results]
                     enriched_prompt = build_rag_prompt(prompt, docs, prompt)
                     retrieved_sources = [r.url for r in results if r.url]
-                    logger.info(f"Antigravity: injected {len(docs)} sources.")
+                    logger.info(f"Modelworks: injected {len(docs)} sources.")
             except Exception as e:
-                logger.warning(f"Antigravity retrieval failed: {e}. Proceeding without.")
+                logger.warning(f"Modelworks retrieval failed: {e}. Proceeding without.")
 
         # ── Step 2: Generate ─────────────────────────────────────────────────
         raw_output = self._run_model(enriched_prompt, max_new_tokens, temperature, top_p)
