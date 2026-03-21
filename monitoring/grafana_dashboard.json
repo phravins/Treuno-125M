@@ -1,5 +1,5 @@
-{
-  "title": "Treuno 125M — Inference Health Dashboard",
+﻿{
+  "title": "Treuno 125M â€” Inference Health Dashboard",
   "uid": "treuno-inference",
   "schemaVersion": 36,
   "version": 1,
@@ -36,7 +36,7 @@
     },
     {
       "id": 2,
-      "title": "AG-Verify Confidence Score Distribution",
+      "title": "Model-Verify Confidence Score Distribution",
       "type": "histogram",
       "gridPos": {"h": 6, "w": 12, "x": 0, "y": 8},
       "description": "Distribution of composite confidence scores. Vertical line at 0.75 = interception threshold.",
@@ -49,7 +49,7 @@
       "title": "Response Interception Rate",
       "type": "stat",
       "gridPos": {"h": 6, "w": 6, "x": 12, "y": 8},
-      "description": "Fraction of responses intercepted by AG-Verify (score < 0.75).",
+      "description": "Fraction of responses intercepted by Model-Verify (score < 0.75).",
       "targets": [
         {
           "expr": "rate(treuno_intercepted_total[1h]) / rate(treuno_generation_total[1h])",
@@ -60,10 +60,10 @@
     },
     {
       "id": 4,
-      "title": "AG-Cache Hit Rate",
+      "title": "Model-Cache Hit Rate",
       "type": "stat",
       "gridPos": {"h": 6, "w": 6, "x": 18, "y": 8},
-      "description": "Fraction of requests served from AG-Cache (~60% expected for repeated queries).",
+      "description": "Fraction of requests served from Model-Cache (~60% expected for repeated queries).",
       "targets": [
         {
           "expr": "rate(treuno_cache_hits_total[1h]) / (rate(treuno_cache_hits_total[1h]) + rate(treuno_cache_misses_total[1h]))",
@@ -86,7 +86,7 @@
     },
     {
       "id": 6,
-      "title": "AG-Retrieve Latency (p95)",
+      "title": "Model-Retrieve Latency (p95)",
       "type": "timeseries",
       "gridPos": {"h": 6, "w": 6, "x": 12, "y": 14},
       "description": "Target: p95 < 300ms",
@@ -142,14 +142,14 @@
         "expr": "rate(treuno_intercepted_total[1h]) / rate(treuno_generation_total[1h]) > 0.3",
         "for": "10m",
         "severity": "warning",
-        "message": "More than 30% of responses are being intercepted by AG-Verify"
+        "message": "More than 30% of responses are being intercepted by Model-Verify"
       },
       {
-        "name": "AG-Retrieve p95 Latency Breach",
+        "name": "Model-Retrieve p95 Latency Breach",
         "expr": "histogram_quantile(0.95, rate(treuno_retrieval_latency_seconds_bucket[5m])) > 0.3",
         "for": "5m",
         "severity": "warning",
-        "message": "AG-Retrieve p95 latency exceeds 300ms target"
+        "message": "Model-Retrieve p95 latency exceeds 300ms target"
       }
     ]
   }
