@@ -1,18 +1,18 @@
-"""
-Treuno — Pipeline Orchestrator
+﻿"""
+Treuno â€” Pipeline Orchestrator
 ===========================================
 Full inference call path:
-  1. AG-Cache.lookup(query) → if hit (sim >= 0.92) → return cached response
-  2. AG-Retrieve(query)     → hybrid search → rerank → top-3 passages
-  3. Inject passages into prompt → TreunoModel.generate()
-  4. AG-Execute(code)       → Docker+gVisor sandbox → execution result
-  5. AG-Verify(response)    → confidence score → intercept if < 0.75
-  6. AG-Cache.store(query, verified_response)
-  7. AG-Update.collect_training_example(if verified)
+  1. Model-Cache.lookup(query) â†’ if hit (sim >= 0.92) â†’ return cached response
+  2. Model-Retrieve(query)     â†’ hybrid search â†’ rerank â†’ top-3 passages
+  3. Inject passages into prompt â†’ TreunoModel.generate()
+  4. Model-Execute(code)       â†’ Docker+gVisor sandbox â†’ execution result
+  5. Model-Verify(response)    â†’ confidence score â†’ intercept if < 0.75
+  6. Model-Cache.store(query, verified_response)
+  7. Model-Update.collect_training_example(if verified)
   8. Return final VerifiedResponse to user
 
 Usage:
-    pipeline = AntigravityPipeline.default()
+    pipeline = ModelworksPipeline.default()
     result = pipeline.run(
         query="Write a Python function to fetch JSON from a URL",
         model_generate_fn=treuno_engine.generate,
@@ -113,7 +113,7 @@ class ModelPipeline:
     @classmethod
     def dev(cls) -> "ModelPipeline":
         """
-        Minimal pipeline for local development — no Redis, no Docker, no Brave.
+        Minimal pipeline for local development â€” no Redis, no Docker, no Brave.
         Uses subprocess sandbox and DuckDuckGo fallback.
         """
         return cls(
@@ -137,7 +137,7 @@ class ModelPipeline:
 
         Args:
             query:              User's raw query string
-            model_generate_fn:  Callable(enriched_prompt: str) → raw model output
+            model_generate_fn:  Callable(enriched_prompt: str) â†’ raw model output
             detected_language:  Expected output language (for sandbox)
 
         Returns:
@@ -145,7 +145,7 @@ class ModelPipeline:
         """
         t_total = time.perf_counter()
 
-        # ── Step 1: Model-Cache lookup ───────────────────────────────────────────
+        # â”€â”€ Step 1: Model-Cache lookup â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         if self.use_cache and self.cache:
             hit = self.cache.lookup(query)
             if hit:
@@ -160,7 +160,7 @@ class ModelPipeline:
                     total_latency_ms=(time.perf_counter() - t_total) * 1000,
                 )
 
-        # ── Step 2: Model-Retrieve ───────────────────────────────────────────────
+        # â”€â”€ Step 2: Model-Retrieve â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         retrieved: List[RetrievedPassage] = []
         retrieval_latency = 0.0
         if self.use_retrieval and self.retriever:
@@ -171,12 +171,12 @@ class ModelPipeline:
                 f"Model-Retrieve: {len(retrieved)} passages in {retrieval_latency:.0f}ms"
             )
 
-        # ── Step 3: Build enriched prompt ─────────────────────────────────────
+        # â”€â”€ Step 3: Build enriched prompt â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         from .rag import build_rag_prompt
         docs = [{"text": p.text, "url": p.url, "title": p.title} for p in retrieved]
         enriched_prompt = build_rag_prompt(query, docs, query, max_context_chars=2000)
 
-        # ── Step 4: Model generation + Model-Execute self-correction loop ─────────
+        # â”€â”€ Step 4: Model generation + Model-Execute self-correction loop â”€â”€â”€â”€â”€â”€â”€â”€â”€
         final_code = None
         exec_result: Optional[ExecutionResult] = None
         raw_output = ""
@@ -190,7 +190,7 @@ class ModelPipeline:
             # Extract code blocks from model output
             code_blocks = self.executor.extract_code_blocks(raw_output)
             if not code_blocks:
-                break   # Text-only answer — no code to verify
+                break   # Text-only answer â€” no code to verify
 
             lang, code = code_blocks[0]
             exec_result = self.executor.run(code, detected_language or lang)
@@ -213,7 +213,7 @@ class ModelPipeline:
                         f"Response will be intercepted by Model-Verify."
                     )
 
-        # ── Step 5: Model-Verify ─────────────────────────────────────────────────
+        # â”€â”€ Step 5: Model-Verify â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         verified_resp: Optional[VerifiedResponse] = None
         code_was_generated = exec_result is not None
 
@@ -234,7 +234,7 @@ class ModelPipeline:
             intercepted = False
             verified_ok = True
 
-        # ── Step 6: Model-Cache store ────────────────────────────────────────────
+        # â”€â”€ Step 6: Model-Cache store â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         if self.use_cache and self.cache and verified_ok and not intercepted:
             source_tier = retrieved[0].source_tier if retrieved else "web"
             self.cache.store(
@@ -245,7 +245,7 @@ class ModelPipeline:
                 source_tier=source_tier,
             )
 
-        # ── Step 7: Model-Update (collect training example) ──────────────────────
+        # â”€â”€ Step 7: Model-Update (collect training example) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         if self.use_update and self.updater and verified_ok and not intercepted:
             example = TrainingExample(
                 prompt=query,
