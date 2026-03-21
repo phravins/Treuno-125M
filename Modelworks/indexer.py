@@ -1,9 +1,9 @@
-"""
-Treuno 125M —  Document Indexer
+﻿"""
+Treuno 125M â€”  Document Indexer
 Chunks retrieved documents, embeds them with sentence-transformers,
 and stores them in a FAISS index for vector similarity search.
 
-This gives Antigravity a persistent local knowledge base that
+This gives Modelworks a persistent local knowledge base that
 augments the real-time web retrieval with cached document chunks.
 
 Usage:
@@ -35,12 +35,12 @@ class DocumentChunk:
 
 class DocumentIndexer:
     """
-    Chunk → Embed → FAISS index pipeline for Antigravity.
+    Chunk â†’ Embed â†’ FAISS index pipeline for Modelworks.
 
     Workflow:
-      1. add_documents([{text, url, title}]) — chunks and indexes documents
-      2. query("...") — returns top-K relevant chunks by cosine similarity
-      3. save() / load() — persist index to disk between sessions
+      1. add_documents([{text, url, title}]) â€” chunks and indexes documents
+      2. query("...") â€” returns top-K relevant chunks by cosine similarity
+      3. save() / load() â€” persist index to disk between sessions
     """
 
     def __init__(
