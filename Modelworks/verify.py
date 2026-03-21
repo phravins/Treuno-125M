@@ -1,5 +1,5 @@
 """
-Treuno — AG-Verify
+Treuno — Model-Verify
 ===================
 
 Evaluates every response before it reaches the user using a
@@ -10,7 +10,7 @@ composite confidence score across three dimensions:
     Score: 1.0 if yes, 0.0 if no.
 
   Dimension 2 — Sandbox Execution (weight: 0.50)
-    Did the generated code pass AG-Execute?
+    Did the generated code pass Model-Execute?
     Score: 1.0 = passed | 0.5 = no code (text answer) | 0.0 = failed all retries
 
   Dimension 3 — Semantic Consistency (weight: 0.20)
@@ -63,9 +63,9 @@ class VerifiedResponse:
     retrieved_urls: List[str]
 
 
-class AGVerify:
+class ModelVerify:
     """
-    AG-Verify: lightweight confidence scoring + uncertainty interception.
+    Model-Verify: lightweight confidence scoring + uncertainty interception.
 
     Call:
         result = verifier.verify(
@@ -87,7 +87,7 @@ class AGVerify:
         self,
         response_text: str,
         retrieved_passages: List[dict],       # list of {text, url, title}
-        execution_result: Optional[object],   # AGExecute.ExecutionResult or None
+        execution_result: Optional[object],   # ModelExecute.ExecutionResult or None
         code_was_generated: bool = True,
     ) -> VerifiedResponse:
         """
@@ -95,8 +95,8 @@ class AGVerify:
 
         Args:
             response_text:      The model's output text
-            retrieved_passages: Passages from AG-Retrieve
-            execution_result:   Result from AG-Execute (or None if no code)
+            retrieved_passages: Passages from Model-Retrieve
+            execution_result:   Result from Model-Execute (or None if no code)
             code_was_generated: False for pure text answers (affects execution weight)
 
         Returns:
@@ -140,7 +140,7 @@ class AGVerify:
             )
             intercepted = True
             logger.warning(
-                f"AG-Verify intercepted response. "
+                f"Model-Verify intercepted response. "
                 f"Score={composite:.2f} (threshold={self.threshold}). {reason}"
             )
 
@@ -196,7 +196,7 @@ class AGVerify:
     ) -> float:
         """
         Cosine similarity between response embedding and top retrieved passage.
-        Uses the same all-MiniLM-L6-v2 encoder as AG-Retrieve.
+        Uses the same all-MiniLM-L6-v2 encoder as Model-Retrieve.
         """
         if not retrieved_passages:
             return 0.5   # Nothing to compare against — neutral
