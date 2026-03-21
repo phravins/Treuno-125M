@@ -2,7 +2,7 @@
 
 Treuno 125M is a high-efficiency decoder-only Transformer designed for real-time code generation and verification.
 
-## 🏗️ Model Architecture
+## Model Architecture
 
 - **Parameters**: 125M (122.8M non-embedding)
 - **Layers**: 12
@@ -18,7 +18,7 @@ Treuno 125M is a high-efficiency decoder-only Transformer designed for real-time
 
 ---
 
-## 🛰️ Antigravity RAG System
+## RAG System
 
 The model's knowledge is augmented by a real-time retrieval system consisting of:
 
@@ -32,7 +32,7 @@ The model's knowledge is augmented by a real-time retrieval system consisting of
 
 ---
 
-## 🔩 Code Execution Sandbox
+## Code Execution Sandbox
 
 - **Execution**: Runs in a secure gVisor-hardened Docker container.
 - **Languages**: 13 (Python, JavaScript, Go, Rust, C++, Java, Swift, Kotlin, Bash, Ruby, PHP, C, TypeScript).
@@ -41,7 +41,7 @@ The model's knowledge is augmented by a real-time retrieval system consisting of
 
 ---
 
-## 📈 Training & Data Pipeline
+## Training & Data Pipeline
 
 ### 6-Phase Training
 1.  **Phase 1: Pretraining**: 100B tokens (GitHub / The Stack v2).
@@ -59,7 +59,7 @@ The model's knowledge is augmented by a real-time retrieval system consisting of
 
 ---
 
-## 🚀 Operations
+## Operations
 
 - **Serving**: vLLM with PagedAttention and AutoGPTQ.
 - **API**: FastAPI providing OpenAI-compatible `/v1/completions`.
