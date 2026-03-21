@@ -2,7 +2,7 @@
 
 Treuno 125M is a coding-specialized language model powered by the **Antigravity** RAG framework and a secure **Code Execution Sandbox**.
 
-## 🏗️ Architecture Overview
+## Architecture Overview
 
 - **Model**: 125M parameters, 12 layers, GQA, SwiGLU, 8k context.
 - **RAG**: Hybrid retrieval (BM25 + FAISS) with real-time web fallback.
@@ -13,7 +13,7 @@ For full technical details, see [TECHNICAL_SPEC.md](file:///d:/MODEL/TECHNICAL_S
 
 ---
 
-## 🚀 Quickstart
+## Quickstart
 
 ### 1. Setup (One-Click)
 Run the master setup script to install all dependencies and prepare the environment:
@@ -35,16 +35,5 @@ python scripts/train_phase1_pretrain.py --data-dir d:/MODEL/data/tokenized --out
 
 ---
 
-## 📁 Directory Structure
-
-```
-d:\MODEL\
-├── model/           ← Transformer, GQA, SwiGLU, RoPE
-├── antigravity/     ← Retrieval, Indexing, RAG Pipeline
-├── sandbox/         ← Secure Execution, Verifier
-├── scripts/         ← 6-phase Training & Data Pipeline
-├── inference/       ← CLI, FastAPI, vLLM
-└── monitoring/      ← Prometheus & Grafana
-```
 
 *Treuno 125M — Grounding code in reality.*
