@@ -1,4 +1,4 @@
-"""Training pipeline structural verification."""
+﻿"""Training pipeline structural verification."""
 import sys, os
 sys.path.insert(0, 'd:/MODEL')
 
@@ -18,11 +18,11 @@ for mod in phase_scripts:
         m = __import__(mod)
         print(f'PASS: {mod}')
     except ImportError as e:
-        # Expected: torch/transformers/trl won't be installed — that's OK
+        # Expected: torch/transformers/trl won't be installed â€” that's OK
         if 'torch' in str(e) or 'transformers' in str(e) or 'trl' in str(e) or 'peft' in str(e):
-            print(f'OK  : {mod} (deps not installed — expected)')
+            print(f'OK  : {mod} (deps not installed â€” expected)')
         else:
-            print(f'FAIL: {mod} — {e}')
+            print(f'FAIL: {mod} â€” {e}')
 
 # 2. Pipeline scripts importable
 pipeline_scripts = [
@@ -36,9 +36,9 @@ for mod in pipeline_scripts:
         print(f'PASS: {mod}')
     except ImportError as e:
         if any(x in str(e) for x in ['kafka', 'datasketch', 'airflow', 'transformers', 'torch']):
-            print(f'OK  : {mod} (deps not installed — expected)')
+            print(f'OK  : {mod} (deps not installed â€” expected)')
         else:
-            print(f'FAIL: {mod} — {e}')
+            print(f'FAIL: {mod} â€” {e}')
 
 # 3. Monitoring importable
 from monitoring.metrics import ExecutionPassRateTracker, pass_rate_tracker
