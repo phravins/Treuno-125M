@@ -1,4 +1,4 @@
-replicaCount: 2
+﻿replicaCount: 2
 
 image:
   repository: treuno/treuno-125m
@@ -63,7 +63,7 @@ volumes:
     persistentVolumeClaim:
       claimName: treuno-model-pvc
 
-# Redis sidecar for AG-Cache
+# Redis sidecar for Model-Cache
 redis:
   enabled: true
   image: redis:7-alpine
@@ -127,7 +127,7 @@ mlflow:
   enabled: false
   trackingUri: http://mlflow:5000
 
-# Airflow for AG-Update scheduling
+# Airflow for Model-Update scheduling
 airflow:
   enabled: false
   webserverUrl: http://airflow:8080
