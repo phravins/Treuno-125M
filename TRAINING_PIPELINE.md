@@ -67,9 +67,9 @@ Steps:   ~12,000
 
 **Goal:** Teach the model to read retrieved documents, synthesize, and cite sources.
 
-**Data:** 20,000 instruction examples formatted with the exact Antigravity prompt template:
+**Data:** 20,000 instruction examples formatted with the exact Modelworks prompt template:
 ```
-[ANTIGRAVITY LIVE CONTEXT — Retrieved for: "{query}"]
+[MODELWORKS LIVE CONTEXT — Retrieved for: "{query}"]
 Source: {url}
 ----------------------------------------
 {retrieved_text}
@@ -78,7 +78,7 @@ Source: {url}
 {user_instruction}
 ```
 
-**These examples must use the same template Antigravity injects at inference time.**
+**These examples must use the same template Modelworks injects at inference time.**
 This trains the model to use context rather than ignore it.
 
 ```
@@ -97,7 +97,7 @@ Max length: 8,192 tokens
 
 **Data generation (fully automated):**
 1. For each of 50,000 coding prompts, sample 2 completions from Phase 3 checkpoint
-2. Run both through AG-Execute (Docker+gVisor, 5s timeout)
+2. Run both through Model-Execute (Docker+gVisor, 5s timeout)
 3. Label: `chosen = passing code`, `rejected = failing code`
 4. If both pass or both fail → discard pair
 
