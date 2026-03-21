@@ -1,7 +1,7 @@
-"""
-Treuno 125M — Phase 6: Weekly LoRA Fine-Tune
+﻿"""
+Treuno 125M â€” Phase 6: Weekly LoRA Fine-Tune
 =============================================
-Continuous knowledge update triggered by AG-Update every Monday at 02:00 UTC.
+Continuous knowledge update triggered by Model-Update every Monday at 02:00 UTC.
 LoRA rank-16 adapter fine-tune on delta data (new commits, SO answers, changelogs).
 Hot-swapped into serving stack with zero downtime via Kubernetes rolling update.
 
@@ -10,13 +10,13 @@ LoRA config:
   Alpha:          32
   Target modules: q_proj, v_proj
   Dropout:        0.05
-  Duration:       ~2 hours on 2× A100 80GB
+  Duration:       ~2 hours on 2Ã— A100 80GB
 
-Data sources (from Kafka → Airflow → processed JSONL):
-  treuno.github.commits      → new function/class commits
-  treuno.stackoverflow.answers → recent accepted answers
-  treuno.changelogs          → library release notes
-  treuno.package.docs        → updated API documentation
+Data sources (from Kafka â†’ Airflow â†’ processed JSONL):
+  treuno.github.commits      â†’ new function/class commits
+  treuno.stackoverflow.answers â†’ recent accepted answers
+  treuno.changelogs          â†’ library release notes
+  treuno.package.docs        â†’ updated API documentation
 
 Usage:
   python scripts/train_phase6_lora.py \\
@@ -83,8 +83,8 @@ def build_lora_model(base_model, r: int = 16, alpha: int = 32):
 
 def hot_swap(candidate_dir: str, live_dir: str) -> bool:
     """
-    Hot-swap the serving weights by atomically moving candidate → live.
-    In Kubernetes: update ConfigMap image tag → rolling restart with 0 downtime.
+    Hot-swap the serving weights by atomically moving candidate â†’ live.
+    In Kubernetes: update ConfigMap image tag â†’ rolling restart with 0 downtime.
     Returns True if swap succeeded.
     """
     import shutil
@@ -120,7 +120,7 @@ def hot_swap(candidate_dir: str, live_dir: str) -> bool:
 
     # Atomic swap
     shutil.copy2(str(candidate), str(live))
-    logger.info(f"Hot-swap complete: {candidate} → {live}")
+    logger.info(f"Hot-swap complete: {candidate} â†’ {live}")
     return True
 
 
@@ -139,7 +139,7 @@ def train(args):
         base_model.load_state_dict(torch.load(ckpt, map_location="cpu"), strict=False)
         logger.info(f"Loaded base checkpoint from {ckpt}")
     else:
-        logger.warning("No base checkpoint found — using random init.")
+        logger.warning("No base checkpoint found â€” using random init.")
 
     model = build_lora_model(base_model, r=16, alpha=32)
 
@@ -149,7 +149,7 @@ def train(args):
     dataset = DeltaDataset(args.data_path, tokenizer, max_length=2048)
 
     if len(dataset) < 100:
-        logger.warning(f"Only {len(dataset)} examples in update buffer — skipping training.")
+        logger.warning(f"Only {len(dataset)} examples in update buffer â€” skipping training.")
         return
 
     training_args = TrainingArguments(
@@ -180,7 +180,7 @@ def train(args):
     merged = model.merge_and_unload()
     os.makedirs(args.output_dir, exist_ok=True)
     torch.save(merged.state_dict(), os.path.join(args.output_dir, "model.pt"))
-    logger.info(f"LoRA merged → {args.output_dir}/model.pt")
+    logger.info(f"LoRA merged â†’ {args.output_dir}/model.pt")
 
     # Hot-swap into live serving directory
     if args.hot_swap:
