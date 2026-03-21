@@ -20,6 +20,13 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 logging.basicConfig(level=logging.WARNING)
 
+# ── Redirect HuggingFace Cache ───────────────────────────────────────────────
+# The D: drive has more space than C:, and GPT-2 weights are ~550MB.
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if "HF_HOME" not in os.environ:
+    os.environ["HF_HOME"] = os.path.join(ROOT, ".cache", "huggingface")
+    os.makedirs(os.environ["HF_HOME"], exist_ok=True)
+
 
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
