@@ -1,5 +1,5 @@
-"""
-Treuno 125M — Prometheus Monitoring + Execution Pass Rate Tracker
+﻿"""
+Treuno 125M â€” Prometheus Monitoring + Execution Pass Rate Tracker
 ================================================================
 Primary hallucination health metric: execution pass rate per language.
 
@@ -7,9 +7,9 @@ Prometheus metrics exposed at /metrics (via prometheus_client):
 
   treuno_generation_total               counter   Total generation requests
   treuno_generation_latency_seconds     histogram Request latency in seconds
-  treuno_retrieval_latency_seconds      histogram AG-Retrieve latency
-  treuno_cache_hits_total               counter   AG-Cache hits
-  treuno_cache_misses_total             counter   AG-Cache misses
+  treuno_retrieval_latency_seconds      histogram Model-Retrieve latency
+  treuno_cache_hits_total               counter   Model-Cache hits
+  treuno_cache_misses_total             counter   Model-Cache misses
   treuno_verify_confidence              histogram Composite confidence scores
   treuno_intercepted_total              counter   Responses intercepted (< 0.75)
   treuno_execution_pass_total           counter   Code execution passes, labelled by language
@@ -34,7 +34,7 @@ from typing import Optional
 logger = logging.getLogger(__name__)
 
 
-# ── Prometheus metrics ────────────────────────────────────────────────────────
+# â”€â”€ Prometheus metrics â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 try:
     from prometheus_client import (
@@ -58,19 +58,19 @@ if _PROMETHEUS_AVAILABLE:
     )
     RETRIEVAL_LATENCY = Histogram(
         "treuno_retrieval_latency_seconds",
-        "AG-Retrieve latency",
+        "Model-Retrieve latency",
         buckets=[0.05, 0.1, 0.2, 0.3, 0.5, 1.0, 2.0],
     )
-    CACHE_HITS = Counter("treuno_cache_hits_total", "AG-Cache hits")
-    CACHE_MISSES = Counter("treuno_cache_misses_total", "AG-Cache misses")
+    CACHE_HITS = Counter("treuno_cache_hits_total", "Model-Cache hits")
+    CACHE_MISSES = Counter("treuno_cache_misses_total", "Model-Cache misses")
     VERIFY_CONFIDENCE = Histogram(
         "treuno_verify_confidence",
-        "AG-Verify composite confidence scores",
+        "Model-Verify composite confidence scores",
         buckets=[0.0, 0.25, 0.5, 0.6, 0.7, 0.75, 0.8, 0.9, 1.0],
     )
     INTERCEPTED_TOTAL = Counter(
         "treuno_intercepted_total",
-        "Responses intercepted by AG-Verify (confidence < 0.75)",
+        "Responses intercepted by Model-Verify (confidence < 0.75)",
     )
     EXECUTION_PASS = Counter(
         "treuno_execution_pass_total",
@@ -97,14 +97,14 @@ if _PROMETHEUS_AVAILABLE:
     )
 
 
-# ── Pass rate tracker ─────────────────────────────────────────────────────────
+# â”€â”€ Pass rate tracker â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class ExecutionPassRateTracker:
     """
     Tracks execution pass/fail events per language in a rolling 1-hour window.
     This is Treuno's PRIMARY hallucination health metric.
 
-    Alert threshold: if any language drops below 60% pass rate → PagerDuty.
+    Alert threshold: if any language drops below 60% pass rate â†’ PagerDuty.
     """
     WINDOW_SECONDS = 3600    # 1 hour rolling window
     ALERT_THRESHOLD = 0.60   # Alert at 60% pass rate
@@ -138,7 +138,7 @@ class ExecutionPassRateTracker:
             while q and q[0][0] < cutoff:
                 q.popleft()
             if not q:
-                return 1.0  # No data → assume healthy
+                return 1.0  # No data â†’ assume healthy
             passed = sum(1 for _, p in q if p)
             return passed / len(q)
 
@@ -154,12 +154,12 @@ class ExecutionPassRateTracker:
         return alerts
 
 
-# ── Global tracker singleton ──────────────────────────────────────────────────
+# â”€â”€ Global tracker singleton â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 pass_rate_tracker = ExecutionPassRateTracker()
 
 
-# ── Helper decorators / context managers ─────────────────────────────────────
+# â”€â”€ Helper decorators / context managers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class timed_generation:
     """Context manager that records generation latency to Prometheus."""
@@ -207,7 +207,7 @@ def record_execution(language: str, passed: bool) -> None:
     pass_rate_tracker.record(language, passed)
 
 
-# ── FastAPI integration ───────────────────────────────────────────────────────
+# â”€â”€ FastAPI integration â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def register_metrics(app) -> None:
     """Mount Prometheus /metrics endpoint on an existing FastAPI app."""
@@ -218,7 +218,7 @@ def register_metrics(app) -> None:
     logger.info("Prometheus /metrics endpoint mounted.")
 
 
-# ── Standalone metrics server ─────────────────────────────────────────────────
+# â”€â”€ Standalone metrics server â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def start_metrics_server(port: int = 9090) -> None:
     """Start a standalone Prometheus HTTP server."""
